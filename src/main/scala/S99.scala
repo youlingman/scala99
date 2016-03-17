@@ -50,11 +50,11 @@ Example:
 scala> length(List(1, 1, 2, 3, 5, 8))
 res0: Int = 6
 */
-//  def length[T](list: List[T]): Int = list match {
-//    case Nil => 0
-//    case _ :: tail => 1 + length(tail)
-//  }
-  def length[T](list : List[T]) : Int = list.foldLeft(0) { (count, _) => count + 1 }
+  //  def length[T](list: List[T]): Int = list match {
+  //    case Nil => 0
+  //    case _ :: tail => 1 + length(tail)
+  //  }
+  def length[T](list: List[T]): Int = list count (_ => true)
 
 
   /*
@@ -120,12 +120,11 @@ res0: List[List[Symbol]] = List(List('a, 'a, 'a, 'a), List('b), List('c, 'c), Li
 */
   def pack[T](list: List[T]): List[List[T]] = list match {
     case Nil => Nil
-    case _ => {
+    case _ =>
       val (first, second) = list.span {
         _ == list.head
       }
       first :: pack(second)
-    }
   }
 
 
@@ -169,12 +168,11 @@ res0: List[(Int, Symbol)] = List((4,'a), (1,'b), (2,'c), (2,'a), (1,'d), (4,'e))
    */
   def encodeDirect[T](list: List[T]): List[(Int, T)] = list match {
     case Nil => Nil
-    case _ => {
+    case _ =>
       val (first, second) = list.span {
         _ == list.head
       }
       (first.length, first.head) :: encodeDirect(second)
-    }
   }
 
 
@@ -220,10 +218,10 @@ scala> split(3, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
 res0: (List[Symbol], List[Symbol]) = (List('a, 'b, 'c),List('d, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
 */
   def split[T](n: Int, list: List[T]): (List[T], List[T]) = {
-      def _split[T](n: Int, head: List[T], tail : List[T]): (List[T], List[T]) = (n, tail) match {
-        case (0, _) => (head, tail)
-        case (_, Nil) => throw new IndexOutOfBoundsException
-        case (_, h :: t) => _split(n - 1, head ::: List(h), t)
+    def _split[T](n: Int, head: List[T], tail: List[T]): (List[T], List[T]) = (n, tail) match {
+      case (0, _) => (head, tail)
+      case (_, Nil) => throw new IndexOutOfBoundsException
+      case (_, h :: t) => _split(n - 1, head ::: List(h), t)
     }
     _split(n, List(), list)
   }
@@ -238,8 +236,36 @@ res0: List[Symbol] = List('d, 'e, 'f, 'g)
 */
   def slice[T](from: Int, to: Int, list: List[T]): List[T] =
     if (list.isEmpty || from < 0 || from > to) Nil
-    else list take(to) drop(from)
+    else list take (to) drop (from)
 
+
+  /*
+P19 (**) Rotate a list N places to the left.
+Examples:
+scala> rotate(3, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
+res0: List[Symbol] = List('d, 'e, 'f, 'g, 'h, 'i, 'j, 'k, 'a, 'b, 'c)
+scala> rotate(-2, List('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j, 'k))
+res1: List[Symbol] = List('j, 'k, 'a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i)
+*/
+  def rotate[T](n: Int, list: List[T]): List[T] = (n, list) match {
+    case (0, _) => list
+    case (_, Nil) => Nil
+    case _ =>
+      val len = list.length
+      val index = ((n % len) + len) % len
+      val t = split(index, list)
+      t._2 ::: t._1
+  }
+
+
+  /*
+P20 (*) Remove the Kth element from a list.
+Return the list and the removed element in a Tuple. Elements are numbered from 0.
+Example:
+scala> removeAt(1, List('a, 'b, 'c, 'd))
+res0: (List[Symbol], Symbol) = (List('a, 'c, 'd),'b)
+*/
+  //  def removeAt[T](n: Int, list: List[T]): (List[T], T) = None
 
   /*
  *
