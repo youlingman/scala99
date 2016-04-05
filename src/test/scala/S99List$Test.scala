@@ -1,6 +1,5 @@
 import java.util.NoSuchElementException
 
-import com.cyl.scala.S99_list
 import org.scalatest.FunSuite
 
 /**
@@ -184,7 +183,7 @@ class S99List$Test extends FunSuite {
   }
 
   test("P23") {
-    assert(S99_list.randomSelect(0, List('a, 'b, 'c, 'c, 'd)).length == 0)
+    assert(S99_list.randomSelect(0, List('a, 'b, 'c, 'c, 'd)).isEmpty)
     assert(S99_list.randomSelect(1, List('a, 'b, 'c, 'd)).length == 1)
     assert(S99_list.randomSelect(2, List('a, 'b, 'c, 'd)).length == 2)
   }
@@ -192,7 +191,7 @@ class S99List$Test extends FunSuite {
   test("P24") {
     assert(S99_list.lotto(2, 5).length == 2)
     assert(S99_list.lotto(1, 5).length == 1)
-    assert(S99_list.lotto(0, 5).length == 0)
+    assert(S99_list.lotto(0, 5).isEmpty)
   }
 
   test("P25") {

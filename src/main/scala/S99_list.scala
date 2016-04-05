@@ -1,5 +1,3 @@
-package com.cyl.scala
-
 import scala.util.Random
 
 /**
@@ -245,7 +243,7 @@ res0: List[Symbol] = List('d, 'e, 'f, 'g)
 */
   def slice[T](from: Int, to: Int, list: List[T]): List[T] =
     if (list.isEmpty || from < 0 || from > to) Nil
-    else list take (to) drop (from)
+    else list take to drop from
 
 
   /*
