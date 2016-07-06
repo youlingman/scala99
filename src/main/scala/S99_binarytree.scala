@@ -89,22 +89,33 @@ object S99_binarytree {
       }
     }
 
+    //    def fromDotstring(str: String): Tree[Char] = {
+    //      def partition(s: String, nest: Int, pos: Int): (String, String) = {
+    //        if (nest == -1) (s.take(pos), s.drop(pos))
+    //        else
+    //          s.charAt(pos) match {
+    //            case '.' => partition(s, nest - 1, pos + 1)
+    //            case _ => partition(s, nest + 1, pos + 1)
+    //          }
+    //      }
+    //      str match {
+    //        case "" => End
+    //        case "." => End
+    //        case _ =>
+    //          val (leftStr, rightStr) = partition(str.tail, 0, 0)
+    //          Node(str.head, fromDotstring(leftStr), fromDotstring(rightStr))
+    //      }
+    //    }
     def fromDotstring(str: String): Tree[Char] = {
-      def partition(s: String, nest: Int, pos: Int): (String, String) = {
-        if (nest == -1) (s.take(pos), s.drop(pos))
-        else
-          s.charAt(pos) match {
-            case '.' => partition(s, nest - 1, pos + 1)
-            case _ => partition(s, nest + 1, pos + 1)
-          }
+      def fromDotstringR(pos: Int): (Tree[Char], Int) = str.charAt(pos) match {
+        case '.' => (End, pos + 1)
+        case c =>
+          val (lNode, lPos) = fromDotstringR(pos + 1)
+          val (rNode, rPos) = fromDotstringR(lPos)
+          (Node(str.charAt(pos), lNode, rNode), rPos)
       }
-      str match {
-        case "" => End
-        case "." => End
-        case _ =>
-          val (leftStr, rightStr) = partition(str.tail, 0, 0)
-          Node(str.head, fromDotstring(leftStr), fromDotstring(rightStr))
-      }
+      if (str == "") End
+      else fromDotstringR(0)._1
     }
 
   }

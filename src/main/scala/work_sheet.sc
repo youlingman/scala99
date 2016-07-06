@@ -1,5 +1,6 @@
 import S99_binarytree.Tree
 import binarytree.{End, Node}
+import multiwaytree.MTree
 
 object work_sheet {
   // S99_arithmetic.printGoldbachList(9 to 20)
@@ -21,9 +22,19 @@ object work_sheet {
 //  Node('a', Node('b', Node('d'), Node('e')), Node('c', End, Node('f', Node('g'), End))).toString
 //  Tree.fromString("a(b(d,e),c(,f(g,)))")
 //  Tree.fromString("a")
-  Tree.fromString("a(b(d,e),c(,f(g,)))").preorder
-  Tree.fromString("a(b(d,e),c(,f(g,)))").inorder
-  Tree.preInTree(List('a', 'b', 'd', 'e', 'c', 'f', 'g'), List('d', 'b', 'e', 'a', 'c', 'g', 'f'))
-  Tree.fromString("a(b(d,e),c(,f(g,)))").toDotString
-  Tree.fromDotstring("a..")
+//  Tree.fromString("a(b(d,e),c(,f(g,)))").preorder
+//  Tree.fromString("a(b(d,e),c(,f(g,)))").inorder
+//  Tree.preInTree(List('a', 'b', 'd', 'e', 'c', 'f', 'g'), List('d', 'b', 'e', 'a', 'c', 'g', 'f'))
+//  Tree.fromString("a(b(d,e),c(,f(g,)))").toDotString
+//  Tree.fromDotstring("a..")
+//  MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e'))))).toString
+//  S99_multiwaytree.string2MTree("a^")
+//  S99_multiwaytree.string2MTree("af^^")
+//  S99_multiwaytree.string2MTree("afg^^c^bd^e^^^")
+//  S99_multiwaytree.string2MTree("afg^^c^^")
+//  MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e')))))
+//  S99_multiwaytree.string2MTree("afg^^c^bd^e^^^") == MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e')))))
+  MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e'))))).internalPathLength
+  MTree('a', List(MTree('f', List(MTree('g'))), MTree('c'), MTree('b', List(MTree('d'), MTree('e'))))).postorder
+  MTree("a", List(MTree("b", List(MTree("c"))))).lispyTree
 }
