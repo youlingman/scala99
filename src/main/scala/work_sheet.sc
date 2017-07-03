@@ -1,4 +1,5 @@
 import S99_binarytree.Tree
+import S99_Miscellaneous.{Point, Sudoku}
 import binarytree.{End, Node}
 import multiwaytree.MTree
 import graph.{Digraph, Graph}
@@ -53,33 +54,44 @@ object work_sheet {
   //  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").nodes.foreach(println(_))
   //  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").edges.foreach(println(_))
   //  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").splitGraph
-//  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").splitGraph.foreach {
-//    n =>
-//      println("---end edges")
-//      n.edges.foreach(println(_))
-//  }
-//  Graph.fromString("[g-h, h-g]").edges.foreach{
-//    println("---end edges")
-//    println(_)
-//  }
-//  Graph.fromString("[a-b, b-c, a-c]").spanningTrees.foreach{
-//    g =>
-//      println("----")
-//      g.nodes.values.map{
-//        n=>
-//          println(n)
-//          println(n.adj)
-//      }
-//  }
+  //  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").splitGraph.foreach {
+  //    n =>
+  //      println("---end edges")
+  //      n.edges.foreach(println(_))
+  //  }
+  //  Graph.fromString("[g-h, h-g]").edges.foreach{
+  //    println("---end edges")
+  //    println(_)
+  //  }
+  //  Graph.fromString("[a-b, b-c, a-c]").spanningTrees.foreach{
+  //    g =>
+  //      println("----")
+  //      g.nodes.values.map{
+  //        n=>
+  //          println(n)
+  //          println(n.adj)
+  //      }
+  //  }
   //  Graph.fromString("[b-c, f-c, g-h, d, f-b, k-f, h-g]").splitGraph.foreach(_.edges.foreach(println(_)))
-  Digraph.fromStringLabel("[a>b, c>a, d>b]").splitGraph.size
-    Digraph.fromStringLabel("[a>b, c>a, d>b]").splitGraph.foreach{
-      println("---")
-      _.edges.foreach(println(_))
-    }
+  //  Digraph.fromStringLabel("[a>b, c>a, d>b]").splitGraph.size
+  //    Digraph.fromStringLabel("[a>b, c>a, d>b]").splitGraph.foreach{
+  //      println("---")
+  //      _.edges.foreach(println(_))
+  //    }
   //  Graph.fromString("[a-b, b-c, a-c, a-d]").nodesByDegree
+  //  Graph.fromString("[a-b, b-c, a-c]").spanningTrees.size
+  //  Graph.fromString("[a-b, b-c, a-c]").isTree
   //  Graph.fromString("[a-b, b-c, a-c, a-d]").colorNodes
-//    Digraph.fromStringLabel("[a>b, c>a, d>b]").colorNodes
-//  Digraph.fromStringLabel("[a>b, a>c, a>d, e>d]").colorNodes
-//  Graph.fromString("[a-b]").isIsomorphicTo(Graph.fromString("[5-7]"))
+  //    Digraph.fromStringLabel("[a>b, c>a, d>b]").colorNodes
+  //  Digraph.fromStringLabel("[a>b, a>c, a>d, e>d]").colorNodes
+  //  Graph.fromString("[a-b]").isIsomorphicTo(Graph.fromString("[5-7]"))
+  //  S99_Miscellaneous.eightQueens(3)
+  //  S99_Miscellaneous.knightTour(4, S99_Miscellaneous.Point(0, 0))
+  //  S99_Miscellaneous.vonKochConjecture(Graph.fromString("[b-c, f-c]"))
+  //  S99_Miscellaneous.isIdentifier("abc_123")
+  //  S99_Miscellaneous.arithmeticPuzzle(List(2, 3, 5, 7, 11))
+  //  S99_Miscellaneous.genMatrix(9, 9)
+  val s = S99_Miscellaneous.Sudoku(Map(Point(1, 3) -> "4", Point(1, 4) -> "8", Point(1, 8) -> "1", Point(1, 9) -> "7", Point(2, 1) -> "6", Point(2, 2) -> "7", Point(2, 4) -> "9", Point(3, 1) -> "5", Point(3, 3) -> "8", Point(3, 5) -> "3", Point(3, 9) -> "4", Point(4, 1) -> "3", Point(4, 4) -> "7", Point(4, 5) -> "4", Point(4, 7) -> "1", Point(5, 2) -> "6", Point(5, 3) -> "9", Point(5, 7) -> "7", Point(5, 8) -> "8", Point(6, 3) -> "4", Point(6, 5) -> "6", Point(6, 6) -> "9", Point(6, 9) -> "5", Point(7, 1) -> "1", Point(7, 5) -> "8", Point(7, 7) -> "3", Point(7, 9) -> "6", Point(8, 6) -> "6", Point(8, 8) -> "9", Point(8, 9) -> "1", Point(9, 1) -> "2", Point(9, 2) -> "4", Point(9, 6) -> "1", Point(9, 7) -> "5"))
+  S99_Miscellaneous.Sudoku.solve(s)
+  //  S99_Miscellaneous.Sudoku(Sudoku(Map()).matrix)
 }
