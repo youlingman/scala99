@@ -1,5 +1,6 @@
 import graph.Graph
 
+import scala.collection.immutable.SortedMap
 import scala.collection.immutable.Stream.Empty
 
 /**
@@ -42,20 +43,20 @@ object S99_Miscellaneous {
     lazy val closedTours = solutions.filter(_.last == from)
   }
 
-//  def knightTour(n: Int, from: Point): Stream[List[Point]] = {
-//    val steps = List(Point(1, 2), Point(1, -2), Point(-1, 2), Point(-1, -2), Point(2, 1), Point(2, -1), Point(-2, 1), Point(-2, -1))
-//    def nextSteps(from: Point): Stream[Point] = steps.map(p => from + p).filter(validCoordinator).toStream
-//
-//    def validCoordinator(p: Point) = p.x >= 0 && p.y >= 0 && p.x < n && p.y < n
-//
-//    def _knightTour(curLoc: Point, curPath: List[Point]): Stream[List[Point]] =
-//      if (curLoc == from && curPath.size == n * n) Stream(curPath.reverse)
-//      else {
-//        //        println(curPath)
-//        nextSteps(curLoc).filter(!curPath.contains(_)).flatMap(p => _knightTour(p, p :: curPath))
-//      }
-//    _knightTour(from, List())
-//  }
+  //  def knightTour(n: Int, from: Point): Stream[List[Point]] = {
+  //    val steps = List(Point(1, 2), Point(1, -2), Point(-1, 2), Point(-1, -2), Point(2, 1), Point(2, -1), Point(-2, 1), Point(-2, -1))
+  //    def nextSteps(from: Point): Stream[Point] = steps.map(p => from + p).filter(validCoordinator).toStream
+  //
+  //    def validCoordinator(p: Point) = p.x >= 0 && p.y >= 0 && p.x < n && p.y < n
+  //
+  //    def _knightTour(curLoc: Point, curPath: List[Point]): Stream[List[Point]] =
+  //      if (curLoc == from && curPath.size == n * n) Stream(curPath.reverse)
+  //      else {
+  //        //        println(curPath)
+  //        nextSteps(curLoc).filter(!curPath.contains(_)).flatMap(p => _knightTour(p, p :: curPath))
+  //      }
+  //    _knightTour(from, List())
+  //  }
 
   /*
     P92 (***) Von Koch's conjecture.
@@ -71,13 +72,14 @@ object S99_Miscellaneous {
    */
   def arithmeticPuzzle(nums: List[Int]): List[String] = {
     // mapper part
+    val ops = Map("+" -> Math.addExact _, "-" -> Math.subtractExact _, "*" -> Math.multiplyExact _, "/" -> Math.floorDiv _)
+
     def genExprs(ns: List[Int]): List[(Int, String)] =
       if (ns.size == 1) List((ns.head, ns.head.toString))
       else (1 until ns.size).map(ns.splitAt).flatMap(p => combineExpr(genExprs(p._1), genExprs(p._2))).toList
 
     def combineExpr(lefts: List[(Int, String)], rights: List[(Int, String)]): List[(Int, String)] = {
-      val ops = Map("+" -> Math.addExact _, "-" -> Math.subtractExact _, "*" -> Math.multiplyExact _, "/" -> Math.floorDiv _)
-      for (l <- lefts; r <- rights; op <- ops; if r._1 != 0 || op._1 != "/") yield (op._2(l._1, r._1), "(" + l._2 + op._1 + r._2 + ")")
+      for (l <- lefts; r <- rights; op <- ops; if (op._1 != "/") || (op._1 == "/" && r._1 != 0 && l._1 % r._1 == 0)) yield (op._2(l._1, r._1), "(" + l._2 + op._1 + r._2 + ")")
     }
 
     // reducer part
@@ -103,16 +105,13 @@ object S99_Miscellaneous {
     P97 Sudoku
    */
   class Sudoku {
+    val row: Int = 9
+    val column: Int = 9
     var matrix = genMatrix(9, 9)
 
     def apply(points: Map[Point, String]) = {
-      //      var temMatrix = Map[Point, String]()
-      //      matrix.keys.foreach { p =>
-      //        if (points.contains(p)) temMatrix = Map(p -> points(p)) ++ temMatrix
-      //        else temMatrix = Map(p -> ".") ++ temMatrix
-      //      }
-      //      matrix = temMatrix
       matrix = matrix.map(p => if (points.contains(p._1)) (p._1, points(p._1)) else p)
+      //      matrix = points
     }
 
     override def equals(o: Any) = o match {
@@ -130,9 +129,8 @@ object S99_Miscellaneous {
 
     def validColumn(point: (Point, String)): Boolean = !matrix.filter(p => p._1 != point._1 && p._1.y == point._1.y).values.exists(_ == point._2)
 
-    def validSquare(point: (Point, String)): Boolean = !matrix.filter(p => p._1 != point._1 && sameSquare(point._1, p._1)).values.exists(_ == point._2)
+    def validSquare(point: (Point, String)): Boolean = !matrix.filter(p => p._1 != point._1 && Sudoku.sameSquare(point._1, p._1)).values.exists(_ == point._2)
 
-    def sameSquare(p: Point, pp: Point): Boolean = (p.x - 1) / 3 == (pp.x - 1) / 3 && (p.y - 1) / 3 == (pp.y - 1) / 3
 
     lazy val solution = Sudoku.solutions(this).headOption
   }
@@ -143,6 +141,8 @@ object S99_Miscellaneous {
       s.apply(points)
       s
     }
+
+    def sameSquare(p: Point, pp: Point): Boolean = (p.x - 1) / 3 == (pp.x - 1) / 3 && (p.y - 1) / 3 == (pp.y - 1) / 3
 
     def step(o: Sudoku, point: (Point, String)) = Sudoku(o.matrix.map(p => if (p._1 == point._1) point else p))
 
@@ -160,15 +160,57 @@ object S99_Miscellaneous {
   /*
     P98 Nonograms
   */
-  class Nonograms {
+  class Nonograms(val solidRows: List[List[Int]], val solidColumns: List[List[Int]]) {
+    val row = solidRows.size
+    val column = solidColumns.size
+    var matrix: Map[Point, String] = genMatrix(row, column)
 
+    def apply(points: Map[Point, String]) = {
+      matrix = matrix.map(p => if (points.contains(p._1)) (p._1, points(p._1)) else p)
+      this
+    }
+
+    def isSolved: Boolean = getSolidRows == solidRows && getSolidColumns == solidColumns
+
+    def getSolidRows: List[List[Int]] = SortedMap(matrix.groupBy(_._1.x).toSeq: _*).values.map(_.toSeq.sortBy(_._1.y)).map(l => l :+(Point(0, 0), "")).
+      map(_.foldLeft((0, List()): (Int, List[Int])) {
+        case (p, (_, "X")) => (p._1 + 1, p._2)
+        case ((0, l), _) => (0, l)
+        case ((n, l), _) => (0, n :: l)
+      }).toList.map(_._2.reverse)
+
+    def getSolidColumns: List[List[Int]] = SortedMap(matrix.groupBy(_._1.y).toSeq: _*).values.map(_.toSeq.sortBy(_._1.x)).map(l => l :+(Point(0, 0), "")).
+      map(_.foldLeft((0, List()): (Int, List[Int])) {
+        case (p, (_, "X")) => (p._1 + 1, p._2)
+        case ((0, l), _) => (0, l)
+        case ((n, l), _) => (0, n :: l)
+      }).toList.map(_._2.reverse)
+
+    // todo 需要从每一行solidRow生成所有可能的行，然后对所有可能的行merge成可能的总的集合（笛卡尔积？），最后再对这个总的集合作filter得到最终解
+    // todo 从solidRow和columnSize得到可能的combinations: List[List[Int]]，然后从rowIndex和columnSize可以得到该行对应的模板rowTemp: Map[Point, String]，
+    // todo 最后再从combinations填入rowTemp内
+
+    def gen
+    def genRows(solidRow: List[Int], columnSize: Int, rowIndex: Int): List[Map[Point, String]] = ???
+
+    def genNonograms(rows: List[List[Map[Point, String]]]): List[Map[Point, String]] = rows match {
+      case Nil => List()
+      case h :: t => h.flatMap(i => genNonograms(t).map(i ++ _))
+    }
+
+    def solutions: List[Nonograms] = genNonograms(solidRows.zip(List.range(1, row + 1)).map(n => genRows(n._1, column, n._2))).map(Nonograms.fork(this, _))
   }
 
   object Nonograms {
+    def apply(solidRows: List[List[Int]], solidColumns: List[List[Int]]) = {
+      val n = new Nonograms(solidRows, solidColumns)
+      n
+    }
 
+    def fork(n: Nonograms, matrix: Map[Point, String]): Nonograms = Nonograms(n.solidRows, n.solidColumns).apply(matrix)
+
+    def genRow(solidRow: List[Int]): List[List[String]] = ???
   }
-
-  def nonograms(columns: List[Int], rows: List[Int]) = ???
 
   /*
     P99 crosswordPuzzle
