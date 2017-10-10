@@ -1,8 +1,10 @@
 import S99_binarytree.Tree
-import S99_Miscellaneous.{Point, Sudoku}
+import S99_Miscellaneous.{Nonograms, Point, Sudoku}
 import binarytree.{End, Node}
 import multiwaytree.MTree
 import graph.{Digraph, Graph}
+
+import scala.collection.immutable.SortedMap
 
 object work_sheet {
   // S99_arithmetic.printGoldbachList(9 to 20)
@@ -91,7 +93,37 @@ object work_sheet {
   //  S99_Miscellaneous.isIdentifier("abc_123")
   //  S99_Miscellaneous.arithmeticPuzzle(List(2, 3, 5, 7, 11))
   //  S99_Miscellaneous.genMatrix(9, 9)
-  val s = S99_Miscellaneous.Sudoku(Map(Point(1, 3) -> "4", Point(1, 4) -> "8", Point(1, 8) -> "1", Point(1, 9) -> "7", Point(2, 1) -> "6", Point(2, 2) -> "7", Point(2, 4) -> "9", Point(3, 1) -> "5", Point(3, 3) -> "8", Point(3, 5) -> "3", Point(3, 9) -> "4", Point(4, 1) -> "3", Point(4, 4) -> "7", Point(4, 5) -> "4", Point(4, 7) -> "1", Point(5, 2) -> "6", Point(5, 3) -> "9", Point(5, 7) -> "7", Point(5, 8) -> "8", Point(6, 3) -> "4", Point(6, 5) -> "6", Point(6, 6) -> "9", Point(6, 9) -> "5", Point(7, 1) -> "1", Point(7, 5) -> "8", Point(7, 7) -> "3", Point(7, 9) -> "6", Point(8, 6) -> "6", Point(8, 8) -> "9", Point(8, 9) -> "1", Point(9, 1) -> "2", Point(9, 2) -> "4", Point(9, 6) -> "1", Point(9, 7) -> "5"))
-  S99_Miscellaneous.Sudoku.solve(s)
+  //  val s = S99_Miscellaneous.Sudoku(Map(Point(1, 3) -> "4", Point(1, 4) -> "8", Point(1, 8) -> "1", Point(1, 9) -> "7", Point(2, 1) -> "6", Point(2, 2) -> "7", Point(2, 4) -> "9", Point(3, 1) -> "5", Point(3, 3) -> "8", Point(3, 5) -> "3", Point(3, 9) -> "4", Point(4, 1) -> "3", Point(4, 4) -> "7", Point(4, 5) -> "4", Point(4, 7) -> "1", Point(5, 2) -> "6", Point(5, 3) -> "9", Point(5, 7) -> "7", Point(5, 8) -> "8", Point(6, 3) -> "4", Point(6, 5) -> "6", Point(6, 6) -> "9", Point(6, 9) -> "5", Point(7, 1) -> "1", Point(7, 5) -> "8", Point(7, 7) -> "3", Point(7, 9) -> "6", Point(8, 6) -> "6", Point(8, 8) -> "9", Point(8, 9) -> "1", Point(9, 1) -> "2", Point(9, 2) -> "4", Point(9, 6) -> "1", Point(9, 7) -> "5"))
+  //  S99_Miscellaneous.Sudoku.solve(s)
   //  S99_Miscellaneous.Sudoku(Sudoku(Map()).matrix)
+  val points = Map(
+    Point(1, 1) -> ".", Point(1, 2) -> "X", Point(1, 3) -> "X", Point(1, 4) -> "X", Point(1, 5) -> ".", Point(1, 6) -> ".", Point(1, 7) -> ".", Point(1, 8) -> ".",
+    Point(2, 1) -> "X", Point(2, 2) -> "X", Point(2, 3) -> ".", Point(2, 4) -> "X", Point(2, 5) -> ".", Point(2, 6) -> ".", Point(2, 7) -> ".", Point(2, 8) -> ".",
+    Point(3, 1) -> ".", Point(3, 2) -> "X", Point(3, 3) -> "X", Point(3, 4) -> "X", Point(3, 5) -> ".", Point(3, 6) -> ".", Point(3, 7) -> "X", Point(3, 8) -> "X",
+    Point(4, 1) -> ".", Point(4, 2) -> ".", Point(4, 3) -> "X", Point(4, 4) -> "X", Point(4, 5) -> ".", Point(4, 6) -> ".", Point(4, 7) -> "X", Point(4, 8) -> "X",
+    Point(5, 1) -> ".", Point(5, 2) -> ".", Point(5, 3) -> "X", Point(5, 4) -> "X", Point(5, 5) -> "X", Point(5, 6) -> "X", Point(5, 7) -> "X", Point(5, 8) -> "X",
+    Point(6, 1) -> "X", Point(6, 2) -> ".", Point(6, 3) -> "X", Point(6, 4) -> "X", Point(6, 5) -> "X", Point(6, 6) -> "X", Point(6, 7) -> "X", Point(6, 8) -> ".",
+    Point(7, 1) -> "X", Point(7, 2) -> "X", Point(7, 3) -> "X", Point(7, 4) -> "X", Point(7, 5) -> "X", Point(7, 6) -> "X", Point(7, 7) -> ".", Point(7, 8) -> ".",
+    Point(8, 1) -> ".", Point(8, 2) -> ".", Point(8, 3) -> ".", Point(8, 4) -> ".", Point(8, 5) -> "X", Point(8, 6) -> ".", Point(8, 7) -> ".", Point(8, 8) -> ".",
+    Point(9, 1) -> ".", Point(9, 2) -> ".", Point(9, 3) -> ".", Point(9, 4) -> "X", Point(9, 5) -> "X", Point(9, 6) -> ".", Point(9, 7) -> ".", Point(9, 8) -> ".")
+  val n = Nonograms(List(List(3), List(2, 1), List(3, 2), List(2, 2), List(6), List(1, 5), List(6), List(1), List(2)),
+    List(List(1, 2), List(3, 1), List(1, 5), List(7, 1), List(5), List(3), List(4), List(3)))
+  n.apply(points)
+  //  Nonograms.genNonograms(List(
+  //    List(
+  //      Map(Point(1, 8) -> "X", Point(1, 5) -> "."),
+  //      Map(Point(1, 8) -> ".", Point(1, 5) -> ".")),
+  //    List(
+  //      Map(Point(2, 8) -> "X", Point(2, 5) -> "."),
+  //      Map(Point(2, 8) -> ".", Point(2, 5) -> "."))
+  //  )).size
+  //  n.solidRows
+  //  n.solidColumns
+  //    n.solidRows.zip(List.range(1, n.row + 1)).map(m => n.genRows(m._1, m._2))
+//  val matrixs = Nonograms.genNonograms(n.solidRows.zip(List.range(1, n.row + 1)).map(m => n.genRows(m._1, m._2))).map(Nonograms.fork(n, _))
+//  matrixs.head
+//  matrixs.head.getSolidColumns
+  //  n.solutions.head
+  //  n.solutions.tail.head
+  //  n.solutions.size
 }

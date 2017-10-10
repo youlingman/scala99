@@ -2,6 +2,7 @@ import graph.Graph
 
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.Stream.Empty
+import Tap._
 
 /**
   *
@@ -16,6 +17,7 @@ object S99_Miscellaneous {
     def _eightQueens(curColumn: Int, curList: List[Int]): List[List[Int]] =
       if (curList.size == n) List(curList.map(_ + 1))
       else (0 until n).filter(n => curList.zipWithIndex.forall(p => n != p._1 && Math.abs(p._1 - n) != Math.abs(p._2 - curColumn))).flatMap(n => _eightQueens(curColumn + 1, curList ::: List(n))).toList
+
     _eightQueens(0, List())
   }
 
@@ -37,6 +39,7 @@ object S99_Miscellaneous {
       def _knightTour(curLoc: Point, curPath: List[Point]): Stream[List[Point]] =
         if (curPath.size == n * n) Stream((curLoc :: curPath).reverse)
         else nextSteps(curLoc).filter(!curPath.contains(_)).flatMap(p => _knightTour(p, p :: curPath))
+
       _knightTour(from, List(from))
     }
 
@@ -64,7 +67,7 @@ object S99_Miscellaneous {
   def vonKochConjecture(tree: Graph[String, Any]): Boolean =
     tree.isTree && (1 to tree.nodes.size).permutations. // get permutations for nodes array
       map(_.zip(tree.nodes.keys).map(p => (p._2, p._1)).toMap). // mapping permutations, make num tag as key
-      map(p => tree.edges.map(e => Math.abs(p.get(e.n1.value).get - p.get(e.n2.value).get))). // get the diff edges for each permutation mapping
+      map(p => tree.edges.map(e => Math.abs(p(e.n1.value) - p(e.n2.value)))). // get the diff edges for each permutation mapping
       exists(_.toSet == (1 until tree.nodes.size).toSet) // judge if valid diff edges exist
 
   /*
@@ -86,7 +89,7 @@ object S99_Miscellaneous {
     def filterExpr(lefts: List[(Int, String)], rights: List[(Int, String)]): List[String] = {
       val lMap = lefts.groupBy(_._1)
       val rMap = rights.groupBy(_._1)
-      lMap.filterKeys(rMap.contains).flatMap(p => for (l <- p._2; r <- rMap.get(p._1).get) yield l._2 + "=" + r._2).toList
+      lMap.filterKeys(rMap.contains).flatMap(p => for (l <- p._2; r <- rMap(p._1)) yield l._2 + "=" + r._2).toList
     }
 
     (1 until nums.size).map(nums.splitAt).flatMap(p => filterExpr(genExprs(p._1), genExprs(p._2))).toList
@@ -99,7 +102,7 @@ object S99_Miscellaneous {
   /*
     P96 (**) Syntax checker.
    */
-  def isIdentifier(str: String): Boolean = "[a-zA-Z](_?[a-zA-Z0-9])*".r.pattern.matcher(str).matches()
+  def isIdentifier(str: String): Boolean = "[a-zA-Z](_?[a-zA-Z0-9])*".r.pattern.matcher(str).matches
 
   /*
     P97 Sudoku
@@ -170,35 +173,28 @@ object S99_Miscellaneous {
       this
     }
 
+    override def toString = (1 to 9).map(row => matrix.toList.filter(_._1.x == row)).flatMap(p => p.sortBy(_._1.y).map(_._2).mkString.concat("\n")).mkString
+
     def isSolved: Boolean = getSolidRows == solidRows && getSolidColumns == solidColumns
 
-    def getSolidRows: List[List[Int]] = SortedMap(matrix.groupBy(_._1.x).toSeq: _*).values.map(_.toSeq.sortBy(_._1.y)).map(l => l :+(Point(0, 0), "")).
-      map(_.foldLeft((0, List()): (Int, List[Int])) {
-        case (p, (_, "X")) => (p._1 + 1, p._2)
-        case ((0, l), _) => (0, l)
-        case ((n, l), _) => (0, n :: l)
-      }).toList.map(_._2.reverse)
+    def getSolidRows: List[List[Int]] = Nonograms.reduceContinuous(SortedMap(matrix.groupBy(_._1.x).toSeq: _*).values.map(_.toSeq.sortBy(_._1.y))).toList
 
-    def getSolidColumns: List[List[Int]] = SortedMap(matrix.groupBy(_._1.y).toSeq: _*).values.map(_.toSeq.sortBy(_._1.x)).map(l => l :+(Point(0, 0), "")).
-      map(_.foldLeft((0, List()): (Int, List[Int])) {
-        case (p, (_, "X")) => (p._1 + 1, p._2)
-        case ((0, l), _) => (0, l)
-        case ((n, l), _) => (0, n :: l)
-      }).toList.map(_._2.reverse)
+    def getSolidColumns: List[List[Int]] = Nonograms.reduceContinuous(SortedMap(matrix.groupBy(_._1.y).toSeq: _*).values.map(_.toSeq.sortBy(_._1.x))).toList
 
-    // todo 需要从每一行solidRow生成所有可能的行，然后对所有可能的行merge成可能的总的集合（笛卡尔积？），最后再对这个总的集合作filter得到最终解
-    // todo 从solidRow和columnSize得到可能的combinations: List[List[Int]]，然后从rowIndex和columnSize可以得到该行对应的模板rowTemp: Map[Point, String]，
-    // todo 最后再从combinations填入rowTemp内
+    // todo 从每一行solidRow生成所有可能的行，然后对所有可能的行merge成可能的总的matrix集合，最后再对这个总的matrix集合作filter得到最终解
+    // todo 全量搜索跑起来太慢了，看看怎么剪枝优化
+    def rowPermutations(rowIndex: Int): Stream[List[(Point, String)]] = {
+      val chars = List(".", "X").toStream
 
-    def gen
-    def genRows(solidRow: List[Int], columnSize: Int, rowIndex: Int): List[Map[Point, String]] = ???
-
-    def genNonograms(rows: List[List[Map[Point, String]]]): List[Map[Point, String]] = rows match {
-      case Nil => List()
-      case h :: t => h.flatMap(i => genNonograms(t).map(i ++ _))
+      def _rowP(curList: List[(Point, String)]): Stream[List[(Point, String)]] =
+        if (curList.size == column) Stream(curList)
+        else chars.flatMap(s => _rowP(curList.::(Point(rowIndex, curList.size + 1), s)))
+      _rowP(List())
     }
 
-    def solutions: List[Nonograms] = genNonograms(solidRows.zip(List.range(1, row + 1)).map(n => genRows(n._1, column, n._2))).map(Nonograms.fork(this, _))
+    def genRows(solidRow: List[Int], rowIndex: Int): Stream[Map[Point, String]] = rowPermutations(rowIndex).filter(row => Nonograms.reduceHelper(row.sortBy(_._1.y)) == solidRow).map(_.toMap)
+
+    def solutions: Stream[Nonograms] = Nonograms.genNonograms(solidRows.zip(List.range(1, row + 1)).map(n => genRows(n._1, n._2))).map(Nonograms.fork(this, _)).filter(_.getSolidColumns == solidColumns)
   }
 
   object Nonograms {
@@ -209,7 +205,20 @@ object S99_Miscellaneous {
 
     def fork(n: Nonograms, matrix: Map[Point, String]): Nonograms = Nonograms(n.solidRows, n.solidColumns).apply(matrix)
 
-    def genRow(solidRow: List[Int]): List[List[String]] = ???
+    def reduceHelper(points: Seq[(Point, String)]): List[Int] =
+      (points :+ (Point(0, 0), "")).foldLeft((0, List()): (Int, List[Int])) {
+        case (p, (_, "X")) => (p._1 + 1, p._2)
+        case ((0, l), _) => (0, l)
+        case ((n, l), _) => (0, n :: l)
+      }._2.reverse
+
+    def reduceContinuous(list: Iterable[Seq[(Point, String)]]): Iterable[List[Int]] = list.map(reduceHelper)
+
+    def genNonograms(rows: List[Stream[Map[Point, String]]]): Stream[Map[Point, String]] = rows match {
+      case Nil => Stream.empty
+      case h :: Nil => h
+      case h :: t => h.flatMap(i => genNonograms(t).map(_ ++ i))
+    }
   }
 
   /*
